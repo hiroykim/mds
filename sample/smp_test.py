@@ -8,7 +8,7 @@ def map_test():
     print(lt_rst)
 
 def dict_reverse_test(dt_org):
-    dt_ne w =dict()
+    dt_new =dict()
 
     for k, v in dt_org.items():
         print(k, v)
