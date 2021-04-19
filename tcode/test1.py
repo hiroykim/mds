@@ -1,5 +1,3 @@
-*
-p;.h6
 import tensorflow as tf
 import os
 import random
