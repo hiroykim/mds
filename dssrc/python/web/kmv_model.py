@@ -11,6 +11,9 @@ import pickle
 import tensorflow as tf
 from tensorflow import keras
 
+#g_id = "HDP"
+g_id = "MDS"
+
 
 def trans_param(rps_pd_cd, py_exem_tp_cd, lwrt_tmn_rfd_tp_cd, ctr_ins_prd, ctr_py_prd, fee_pay_tp_cd, rcrt_bch_org_cd, 
                 sbc_age, gndr_cd, injr_gr_num, plan_cd, inspe_grde_val, 
@@ -27,20 +30,36 @@ def trans_param(rps_pd_cd, py_exem_tp_cd, lwrt_tmn_rfd_tp_cd, ctr_ins_prd, ctr_p
     ch_dict = {}
     cov_dict = {}
 
-    with open("/home/hdpapp/deployment/mds/dssrc/data/params/pd_dict", "rb") as lf:
-        pd_dict = pickle.load(lf)
-    with open("/home/hdpapp/deployment/mds/dssrc/data/params/exem_dict", "rb") as lf:
-        exem_dict = pickle.load(lf)
-    with open("/home/hdpapp/deployment/mds/dssrc/data/params/lwrt_dict", "rb") as lf:
-        lwrt_dict = pickle.load(lf)
-    with open("/home/hdpapp/deployment/mds/dssrc/data/params/fee_dict", "rb") as lf:
-        fee_dict = pickle.load(lf)
-    with open("/home/hdpapp/deployment/mds/dssrc/data/params/pl_dict", "rb") as lf:
-        pl_dict = pickle.load(lf)
-    with open("/home/hdpapp/deployment/mds/dssrc/data/params/bch_dict", "rb") as lf:
-        bch_dict = pickle.load(lf)
-    with open("/home/hdpapp/deployment/mds/dssrc/data/params/cov_dict", "rb") as lf:
-        cov_dict = pickle.load(lf)
+    if g_id == "HDP":
+        with open("/home/hdpapp/deployment/mds/dssrc/data/params/pd_dict", "rb") as lf:
+            pd_dict = pickle.load(lf)
+        with open("/home/hdpapp/deployment/mds/dssrc/data/params/exem_dict", "rb") as lf:
+            exem_dict = pickle.load(lf)
+        with open("/home/hdpapp/deployment/mds/dssrc/data/params/lwrt_dict", "rb") as lf:
+            lwrt_dict = pickle.load(lf)
+        with open("/home/hdpapp/deployment/mds/dssrc/data/params/fee_dict", "rb") as lf:
+            fee_dict = pickle.load(lf)
+        with open("/home/hdpapp/deployment/mds/dssrc/data/params/pl_dict", "rb") as lf:
+            pl_dict = pickle.load(lf)
+        with open("/home/hdpapp/deployment/mds/dssrc/data/params/bch_dict", "rb") as lf:
+            bch_dict = pickle.load(lf)
+        with open("/home/hdpapp/deployment/mds/dssrc/data/params/cov_dict", "rb") as lf:
+            cov_dict = pickle.load(lf)
+    else:
+        with open("/application/mds/dssrc/data/params/pd_dict", "rb") as lf:
+            pd_dict = pickle.load(lf)
+        with open("/application/mds/dssrc/data/params/exem_dict", "rb") as lf:
+            exem_dict = pickle.load(lf)
+        with open("/application/mds/dssrc/data/params/lwrt_dict", "rb") as lf:
+            lwrt_dict = pickle.load(lf)
+        with open("/application/mds/dssrc/data/params/fee_dict", "rb") as lf:
+            fee_dict = pickle.load(lf)
+        with open("/application/mds/dssrc/data/params/pl_dict", "rb") as lf:
+            pl_dict = pickle.load(lf)
+        with open("/application/mds/dssrc/data/params/bch_dict", "rb") as lf:
+            bch_dict = pickle.load(lf)
+        with open("/application/mds/dssrc/data/params/cov_dict", "rb") as lf:
+            cov_dict = pickle.load(lf)
 
     #featuer 
     #참고: java ...model.java의 xxxx를 보세요
@@ -174,8 +193,11 @@ def call_model(modelInput):
 
     # 배포된모델로 바꿔야되고 대충 이렇게 로드하는데, model 로드는 서비스 시작때 한번만 이루어져야 하지만
     # 일단 그냥 여기서 로드
-    #model = keras.models.load_model('/home/hdpapp/JM/KMV_prediction_v2021030201_1031_0.0006_0.0005.h5', compile=True)
-    model = keras.models.load_model('/home/hdpapp/deployment/mds/dssrc/data/model/KMV_prediction_v2021030201_1031_0.0006_0.0005.h5', compile=True)
+    if g_id == "HDP":
+        #model = keras.models.load_model('/home/hdpapp/JM/KMV_prediction_v2021030201_1031_0.0006_0.0005.h5', compile=True)
+        model = keras.models.load_model('/home/hdpapp/deployment/mds/dssrc/data/model/KMV_prediction_v2021030201_1031_0.0006_0.0005.h5', compile=True)
+    else:
+        model = keras.models.load_model('/application/mds/dssrc/data/model/KMV_prediction_v2021030201_1031_0.0006_0.0005.h5', compile=True)
 
     # 모델에 인풋을 넣어 결과값을 받는 장면
     output = model.predict(modelInput.reshape(1, -1))
