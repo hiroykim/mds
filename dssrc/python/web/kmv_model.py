@@ -61,7 +61,9 @@ def trans_param(rps_pd_cd, py_exem_tp_cd, lwrt_tmn_rfd_tp_cd, ctr_ins_prd, ctr_p
         with open("/application/mds/dssrc/data/params/cov_dict", "rb") as lf:
             cov_dict = pickle.load(lf)
 
-    #featuer 
+    print("------------------------------------")
+    print(pd_dict)
+    #featuer
     #참고: java ...model.java의 xxxx를 보세요
     #참고: pyspahr..무슨선스 무슨 소스이 어느 함수보세요..
 
@@ -251,3 +253,4 @@ if __name__ == "__main__":
             print(e)
 
     kmv_model()
+
