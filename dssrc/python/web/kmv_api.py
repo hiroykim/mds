@@ -26,7 +26,23 @@ def set_gpu_mem():
             print(e)
 
 
-def set_param(msg):
+def parse_data(dt_pickle, data):
+
+    ret = np.zeros(970)
+    curIndex = 0
+
+
+    pd_dict = dt_pickle.get("pd_dict")
+    rps_pd_cd =data.get("rps_pd_cd")
+
+    # 상품코드
+    if rps_pd_cd in pd_dict:
+        ret[curIndex + pd_dict[rps_pd_cd]] = 1
+    curIndex += len(pd_dict)
+
+
+def set_data(dt_pickle, data):
+    parse_data(dt_pickle, data)
     model_input = trans_param("61334", "null", "null", 20, 20, "705", "10NP010", 40, "1", 1, "null", "3_1", "630022", -1, 20, 20, 100)
     return model_input
 
@@ -34,6 +50,35 @@ def set_param(msg):
 def get_model(model_loc):
 
     return keras.models.load_model(model_loc, compile=True)
+
+
+def load_pickle():
+    dt_pickle = {}
+
+    with open("/application/mds/dssrc/data/params/pd_dict", "rb") as lf:
+        pd_dict = pickle.load(lf)
+    with open("/application/mds/dssrc/data/params/exem_dict", "rb") as lf:
+        exem_dict = pickle.load(lf)
+    with open("/application/mds/dssrc/data/params/lwrt_dict", "rb") as lf:
+        lwrt_dict = pickle.load(lf)
+    with open("/application/mds/dssrc/data/params/fee_dict", "rb") as lf:
+        fee_dict = pickle.load(lf)
+    with open("/application/mds/dssrc/data/params/pl_dict", "rb") as lf:
+        pl_dict = pickle.load(lf)
+    with open("/application/mds/dssrc/data/params/bch_dict", "rb") as lf:
+        bch_dict = pickle.load(lf)
+    with open("/application/mds/dssrc/data/params/cov_dict", "rb") as lf:
+        cov_dict = pickle.load(lf)
+
+    dt_pickle["pd_dict"] = pd_dict
+    dt_pickle["exem_dict"] = exem_dict
+    dt_pickle["lwrt_dict"] = lwrt_dict
+    dt_pickle["fee_dict"] = fee_dict
+    dt_pickle["pl_dict"] = pl_dict
+    dt_pickle["bch_dict"] = bch_dict
+    dt_pickle["cov_dict"] = cov_dict
+
+    return dt_pickle
 
 
 def get_predict(model, model_input):
