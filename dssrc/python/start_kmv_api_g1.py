@@ -12,7 +12,6 @@ from flask_restful import Api, Resource
 from flask_cors import CORS
 from web import kmv_api
 import os
-import pickle
 
 app = Flask(__name__)
 CORS(app)

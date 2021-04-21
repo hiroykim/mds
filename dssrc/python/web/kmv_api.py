@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import pandas as pd
-import calendar
-import copy
-import time
-import ast
 import pickle
+import json
 
 import tensorflow as tf
 from tensorflow import keras
+import os
 
 
 def set_gpu_mem():
@@ -26,29 +23,130 @@ def set_gpu_mem():
             print(e)
 
 
-def parse_data(dt_pickle, data):
-
-    ret = np.zeros(970)
+def parse_comm(dt_pickle, data):
+    comm_size = len(dt_pickle.get("pd_dict")) + len(dt_pickle.get("exem_dict")) + len(dt_pickle.get("lwrt_dict")) \
+                + 2 + len(dt_pickle.get("fee_dict")) + len(dt_pickle.get("bch_dict")) + 1 + 2 + 3 \
+                + len(dt_pickle.get("pl_dict")) + 3
+    ret = np.zeros(comm_size)
     curIndex = 0
 
-
+    # 상품코드 len(dt_pickle.get("pd_dict"))
     pd_dict = dt_pickle.get("pd_dict")
-    rps_pd_cd =data.get("rps_pd_cd")
-
-    # 상품코드
+    rps_pd_cd = data.get("rpsPdCd")
     if rps_pd_cd in pd_dict:
         ret[curIndex + pd_dict[rps_pd_cd]] = 1
     curIndex += len(pd_dict)
 
+    # 납입면제유형코드 len(dt_pickle.get("exem_dict"))
+    exem_dict = dt_pickle.get("exem_dict")
+    py_exem_tp_cd = data.get("pyExemTpCd")
+    if py_exem_tp_cd in exem_dict:
+        ret[curIndex + exem_dict[py_exem_tp_cd]] = 1
+    curIndex += len(exem_dict)
+
+    # 저율해지유형코드 len(dt_pickle.get("lwrt_dict"))
+    lwrt_dict = dt_pickle.get("lwrt_dict")
+    lwrt_tmn_rfd_tp_cd = data.get("lwrtTmnRfdTpCd")
+    if lwrt_tmn_rfd_tp_cd in lwrt_dict:
+        ret[curIndex + exem_dict[lwrt_tmn_rfd_tp_cd]] = 1
+    curIndex += len(lwrt_dict)
+
+    # 계약의 보험기간 / 납입기간 2
+    ctr_py_prd = data.get("ctr_py_prd")
+    ctr_ins_prd = data.get("ctrInsPrd")
+    ret[curIndex], ret[curIndex+1] = ctr_py_prd/100., ctr_ins_prd/100.
+    curIndex += 2
+
+    # 수수료지급유형코드 len(dt_pickle.get("fee_dict"))
+    fee_dict = dt_pickle.get("fee_dict")
+    fee_pay_tp_cd = data.get("feePayTpCd")
+    if fee_pay_tp_cd in fee_dict:
+        ret[curIndex + fee_dict[fee_pay_tp_cd]] = 1
+    curIndex += len(fee_dict)
+
+    # 모집조직 len(dt_pickle.get("bch_dict"))
+    bch_dict = dt_pickle.get("bch_dict")
+    rcrt_bch_org_cd = data.get("rcrtOrgCd")
+    if rcrt_bch_org_cd in bch_dict:
+        ret[curIndex + bch_dict[rcrt_bch_org_cd]] = 1
+    curIndex += len(bch_dict)
+
+    # 연령 1
+    sbc_age = data.get("sbcAge")
+    ret[curIndex] = sbc_age/100.
+    curIndex += 1
+
+    # 성별 2
+    gndr_cd = data.get("gndrCd")
+    if gndr_cd == '1':
+        ret[curIndex] = 1
+    elif gndr_cd == '2':
+        ret[curIndex+1] = 1
+
+    curIndex += 2
+
+    # 직업급수 3
+    injr_gr_num = data.get("injrGrde")
+    if 1 <= injr_gr_num <= 3:
+        ret[curIndex + injr_gr_num - 1] = 1
+    curIndex += 3
+
+    # 플랜코드 len(dt_pickle.get("pl_dict"))
+    pl_dict = dt_pickle.get("pl_dict")
+    plan_cd = data.get("planCd")
+    if plan_cd in pl_dict:
+        ret[curIndex + pl_dict[plan_cd]] = 1
+    curIndex += len(pl_dict)
+
+    # 상해등급 3
+    inspe_grde_val = data.get("injrGrde")
+    if inspe_grde_val is not None:
+        grde = int(inspe_grde_val[0])
+        if 1 <= grde <= 3:
+            ret[curIndex + grde - 1] = 1
+    curIndex += 3
+
+    rows = len(data.get("lgtmPdCovErnRtMngMdelCovInpCoVo"))
+    comm_ret = ret * rows
+    return comm_ret.reshape(comm_size, rows)
+
+
+def parse_cov(dt_pickle, data):
+    cov_dict = dt_pickle.get("cov_dict")
+    sbc_amt = -1
+    cov_size = len(cov_dict)*2
+    cov_cnt = len(data.get("lgtmPdCovErnRtMngMdelCovInpCoVo"))
+    ret = np.zeros(cov_size*cov_cnt)
+    curIndex = 0
+    # 담보코드
+    lt_cov = data.get("lgtmPdCovErnRtMngMdelCovInpCoVo")
+    for dt_cov in lt_cov:
+        cov_cd = dt_cov["covCd"]
+        if cov_cd in cov_dict:
+            ret[curIndex + cov_dict[cov_cd][0]] = 1
+        curIndex += len(cov_dict)
+
+        if cov_cd in cov_dict:
+            if cov_dict[cov_cd][1] <= 0:
+                input_val = 1
+            elif sbc_amt >= 0:
+                input_val = np.min([1.0, sbc_amt / cov_dict[cov_cd][1]])
+            else:
+                input_val = cov_dict[cov_cd][2] / cov_dict[cov_cd][1]
+            ret[curIndex + cov_dict[cov_cd][0]] = input_val
+        curIndex += len(cov_dict)
+
+    return ret.reshape(cov_size, cov_cnt)
+
 
 def set_data(dt_pickle, data):
-    #parse_data(dt_pickle, data)
-    model_input = trans_param("61334", "null", "null", 20, 20, "705", "10NP010", 40, "1", 1, "null", "3_1", "630022", -1, 20, 20, 100)
-    return model_input
+    comm_input = parse_comm(dt_pickle, data)
+    cov_input = parse_cov(dt_pickle, data)
+
+    return np.concatenate((comm_input, cov_input), axis=1)
 
 
 def get_model(model_loc):
-
     return keras.models.load_model(model_loc, compile=True)
 
 
@@ -83,13 +181,12 @@ def load_pickle():
 
 def get_predict(model, model_input):
     output = model.predict(model_input.reshape(1, -1))
-    return np.sign(output[0][0])*(np.exp(np.abs(output[0][0])*10)-1)
+    return np.sign(output[0][0]) * (np.exp(np.abs(output[0][0]) * 10) - 1)
 
 
 def trans_param(rps_pd_cd, py_exem_tp_cd, lwrt_tmn_rfd_tp_cd, ctr_ins_prd, ctr_py_prd, fee_pay_tp_cd, rcrt_bch_org_cd,
                 sbc_age, gndr_cd, injr_gr_num, plan_cd, inspe_grde_val,
                 cov_cd, sbc_amt, ins_prd, py_prd, rnwl_ed_age):
-
     pd_dict = {}
     exem_dict = {}
     lwrt_dict = {}
@@ -196,3 +293,25 @@ def trans_param(rps_pd_cd, py_exem_tp_cd, lwrt_tmn_rfd_tp_cd, ctr_ins_prd, ctr_p
     curIndex += len(cov_dict)
 
     return ret
+
+
+##############################
+# Test Code
+##############################
+def main():
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
+    model_loc = '/application/mds/dssrc/data/model/KMV_prediction_v2021030201_1031_0.0006_0.0005.h5'
+    set_gpu_mem()
+    model = get_model(model_loc)
+    dt_pickle = load_pickle()
+    with open("/application/mds/dssrc/data/client/java_kmv_input.json", "r") as fp:
+        # dict
+        json_data = json.load(fp)
+
+    model_input = set_data(dt_pickle, json_data)
+    rst = get_predict(model, model_input)
+
+
+if __name__ == "__main__":
+    main()
