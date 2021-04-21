@@ -42,7 +42,7 @@ def parse_data(dt_pickle, data):
 
 
 def set_data(dt_pickle, data):
-    parse_data(dt_pickle, data)
+    #parse_data(dt_pickle, data)
     model_input = trans_param("61334", "null", "null", 20, 20, "705", "10NP010", 40, "1", 1, "null", "3_1", "630022", -1, 20, 20, 100)
     return model_input
 
