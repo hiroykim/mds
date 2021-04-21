@@ -61,6 +61,6 @@ api.add_resource(KmvApi, "/kmv")
 
 
 if __name__ == "__main__":
-    app.run(debug=True, use_reloader=True, host='0.0.0.0',port=8888)
+    app.run(debug=True, use_reloader=True, host='0.0.0.0',port=8111)
     
-# curl -iX POST 'http://127.0.0.1:8011/kmv' -H 'Content-Type:application/json' -d '{"param":"test"}'
+# curl -iX POST 'http://127.0.0.1:8111/kmv' -H 'Content-Type:application/json' -d '{"param":"test"}'
