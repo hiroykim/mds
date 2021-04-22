@@ -23,67 +23,65 @@ def set_gpu_mem():
             print(e)
 
 
-def parse_comm(dt_pickle, data):
-    comm_size = len(dt_pickle.get("pd_dict")) + len(dt_pickle.get("exem_dict")) + len(dt_pickle.get("lwrt_dict")) \
-                + 2 + len(dt_pickle.get("fee_dict")) + len(dt_pickle.get("bch_dict")) + 1 + 2 + 3 \
-                + len(dt_pickle.get("pl_dict")) + 3
-    ret = np.zeros(comm_size)
+def parse_comm(dt_pickle, data, rows):
+    cols = dt_pickle["com_cols"]
+    ret = np.zeros((rows, cols))
     curIndex = 0
 
     # 상품코드 len(dt_pickle.get("pd_dict"))
     pd_dict = dt_pickle.get("pd_dict")
     rps_pd_cd = data.get("rpsPdCd")
     if rps_pd_cd in pd_dict:
-        ret[curIndex + pd_dict[rps_pd_cd]] = 1
+        ret[:, curIndex + pd_dict[rps_pd_cd]] = 1
     curIndex += len(pd_dict)
 
     # 납입면제유형코드 len(dt_pickle.get("exem_dict"))
     exem_dict = dt_pickle.get("exem_dict")
     py_exem_tp_cd = data.get("pyExemTpCd")
     if py_exem_tp_cd in exem_dict:
-        ret[curIndex + exem_dict[py_exem_tp_cd]] = 1
+        ret[:, curIndex + exem_dict[py_exem_tp_cd]] = 1
     curIndex += len(exem_dict)
 
     # 저율해지유형코드 len(dt_pickle.get("lwrt_dict"))
     lwrt_dict = dt_pickle.get("lwrt_dict")
     lwrt_tmn_rfd_tp_cd = data.get("lwrtTmnRfdTpCd")
     if lwrt_tmn_rfd_tp_cd in lwrt_dict:
-        ret[curIndex + exem_dict[lwrt_tmn_rfd_tp_cd]] = 1
+        ret[:, curIndex + exem_dict[lwrt_tmn_rfd_tp_cd]] = 1
     curIndex += len(lwrt_dict)
 
     # check!!
     # 계약의 보험기간 / 납입기간 2
     ctr_py_prd = float(data.get("ctr_py_prd",0))
     ctr_ins_prd = float(data.get("ctrInsPrd",0))
-    ret[curIndex], ret[curIndex+1] = ctr_py_prd/100., ctr_ins_prd/100.
+    ret[:, curIndex], ret[:, curIndex+1] = ctr_py_prd/100., ctr_ins_prd/100.
     curIndex += 2
 
     # 수수료지급유형코드 len(dt_pickle.get("fee_dict"))
     fee_dict = dt_pickle.get("fee_dict")
     fee_pay_tp_cd = data.get("feePayTpCd")
     if fee_pay_tp_cd in fee_dict:
-        ret[curIndex + fee_dict[fee_pay_tp_cd]] = 1
+        ret[:, curIndex + fee_dict[fee_pay_tp_cd]] = 1
     curIndex += len(fee_dict)
 
     # 모집조직 len(dt_pickle.get("bch_dict"))
     bch_dict = dt_pickle.get("bch_dict")
     rcrt_bch_org_cd = data.get("rcrtOrgCd")
     if rcrt_bch_org_cd in bch_dict:
-        ret[curIndex + bch_dict[rcrt_bch_org_cd]] = 1
+        ret[:, curIndex + bch_dict[rcrt_bch_org_cd]] = 1
     curIndex += len(bch_dict)
 
     # check!!
     # 연령 1
     sbc_age = float(data.get("sbcAge",0))
-    ret[curIndex] = sbc_age/100.
+    ret[:, curIndex] = sbc_age/100.
     curIndex += 1
 
     # 성별 2
     gndr_cd = data.get("gndrCd")
     if gndr_cd == '1':
-        ret[curIndex] = 1
+        ret[:, curIndex] = 1
     elif gndr_cd == '2':
-        ret[curIndex+1] = 1
+        ret[:, curIndex+1] = 1
 
     curIndex += 2
 
@@ -95,14 +93,14 @@ def parse_comm(dt_pickle, data):
     else:
         injr_gr_num=0
     if 1 <= injr_gr_num <= 3:
-        ret[curIndex + injr_gr_num - 1] = 1
+        ret[:, curIndex + injr_gr_num - 1] = 1
     curIndex += 3
 
     # 플랜코드 len(dt_pickle.get("pl_dict"))
     pl_dict = dt_pickle.get("pl_dict")
     plan_cd = data.get("planCd")
     if plan_cd in pl_dict:
-        ret[curIndex + pl_dict[plan_cd]] = 1
+        ret[:, curIndex + pl_dict[plan_cd]] = 1
     curIndex += len(pl_dict)
 
     # check!!
@@ -111,29 +109,24 @@ def parse_comm(dt_pickle, data):
     if inspe_grde_val is not None:
         grde = int(inspe_grde_val[0])
         if 1 <= grde <= 3:
-            ret[curIndex + grde - 1] = 1
-    curIndex += 3
+            ret[:, curIndex + grde - 1] = 1
 
-    rows = len(data.get("lgtmPdCovErnRtMngMdelCovInpCoVo"))
-    comm_ret = ret.copy()
-    for _ in range(0, rows):
-        comm_ret = np.concatenate((comm_ret, ret), axis=0)
-    return comm_ret.reshape(comm_size, rows)
+    return ret
 
 
-def parse_cov(dt_pickle, data):
+def parse_cov(dt_pickle, data, rows):
+    cols = dt_pickle["cov_cols"]
     cov_dict = dt_pickle.get("cov_dict")
     sbc_amt = -1
-    cov_size = len(cov_dict)*2
-    cov_cnt = len(data.get("lgtmPdCovErnRtMngMdelCovInpCoVo"))
-    ret = np.zeros(cov_size*cov_cnt)
+    ret = np.zeros((rows,cols))
     curIndex = 0
     # 담보코드
+    cur_rows = 0
     lt_cov = data.get("lgtmPdCovErnRtMngMdelCovInpCoVo")
     for dt_cov in lt_cov:
         cov_cd = dt_cov["covCd"]
         if cov_cd in cov_dict:
-            ret[curIndex + cov_dict[cov_cd][0]] = 1
+            ret[cur_rows , cov_dict[cov_cd][0]] = 1
         curIndex += len(cov_dict)
 
         if cov_cd in cov_dict:
@@ -143,15 +136,28 @@ def parse_cov(dt_pickle, data):
                 input_val = np.min([1.0, sbc_amt / cov_dict[cov_cd][1]])
             else:
                 input_val = cov_dict[cov_cd][2] / cov_dict[cov_cd][1]
-            ret[curIndex + cov_dict[cov_cd][0]] = input_val
+            ret[cur_rows, curIndex + cov_dict[cov_cd][0]] = input_val
+   
         curIndex += len(cov_dict)
+        ins_prd = dt_cov["insPrd"]
+        py_prd = dt_cov["pyPrd"]
+        rnwl_ed_age = dt_cov["rnwlEdAge"]
+        ret[cur_rows, curIndex] = ins_prd/100.
+        ret[cur_rows, curIndex + 1] = py_prd/100.
+        ret[cur_rows, curIndex + 2] = rnwl_ed_age/100.
+        
+        curIndex = 0
+        cur_rows += 1 
 
-    return ret.reshape(cov_size, cov_cnt)
+
+    return ret
 
 
 def set_data(dt_pickle, data):
-    comm_input = parse_comm(dt_pickle, data)
-    cov_input = parse_cov(dt_pickle, data)
+    rows = len(data.get("lgtmPdCovErnRtMngMdelCovInpCoVo"))
+    print("rows: ", rows)
+    comm_input = parse_comm(dt_pickle, data, rows)
+    cov_input = parse_cov(dt_pickle, data, rows)
 
     return np.concatenate((comm_input, cov_input), axis=1)
 
@@ -185,6 +191,20 @@ def load_pickle():
     dt_pickle["pl_dict"] = pl_dict
     dt_pickle["bch_dict"] = bch_dict
     dt_pickle["cov_dict"] = cov_dict
+    
+    com_cols = len(dt_pickle.get("pd_dict")) + len(dt_pickle.get("exem_dict")) + len(dt_pickle.get("lwrt_dict")) \
+                + 2 + len(dt_pickle.get("fee_dict")) + len(dt_pickle.get("bch_dict")) + 1 + 2 + 3 \
+                + len(dt_pickle.get("pl_dict")) + 3
+    cov_cols = len(dt_pickle.get("cov_dict")) * 2 + 3
+
+    dt_pickle["com_cols"] = com_cols
+    dt_pickle["cov_cols"] = cov_cols
+    tot_cols = com_cols + cov_cols
+    dt_pickle["tot_cols"] = tot_cols
+
+    #test
+    print("-----------------------")
+    print(com_cols, cov_cols, tot_cols)
 
     return dt_pickle
 
@@ -193,116 +213,6 @@ def get_predict(model, model_input):
     output = model.predict(model_input.reshape(1, -1))
     return np.sign(output[0][0]) * (np.exp(np.abs(output[0][0]) * 10) - 1)
 
-
-def trans_param(rps_pd_cd, py_exem_tp_cd, lwrt_tmn_rfd_tp_cd, ctr_ins_prd, ctr_py_prd, fee_pay_tp_cd, rcrt_bch_org_cd,
-                sbc_age, gndr_cd, injr_gr_num, plan_cd, inspe_grde_val,
-                cov_cd, sbc_amt, ins_prd, py_prd, rnwl_ed_age):
-    pd_dict = {}
-    exem_dict = {}
-    lwrt_dict = {}
-    fee_dict = {}
-    pl_dict = {}
-    ch_dict = {}
-    cov_dict = {}
-
-    with open("/application/mds/dssrc/data/params/pd_dict", "rb") as lf:
-        pd_dict = pickle.load(lf)
-    with open("/application/mds/dssrc/data/params/exem_dict", "rb") as lf:
-        exem_dict = pickle.load(lf)
-    with open("/application/mds/dssrc/data/params/lwrt_dict", "rb") as lf:
-        lwrt_dict = pickle.load(lf)
-    with open("/application/mds/dssrc/data/params/fee_dict", "rb") as lf:
-        fee_dict = pickle.load(lf)
-    with open("/application/mds/dssrc/data/params/pl_dict", "rb") as lf:
-        pl_dict = pickle.load(lf)
-    with open("/application/mds/dssrc/data/params/bch_dict", "rb") as lf:
-        bch_dict = pickle.load(lf)
-    with open("/application/mds/dssrc/data/params/cov_dict", "rb") as lf:
-        cov_dict = pickle.load(lf)
-
-    ret = np.zeros(970)
-
-    curIndex = 0
-
-    # 상품코드
-    if rps_pd_cd in pd_dict:
-        ret[curIndex + pd_dict[rps_pd_cd]] = 1
-    curIndex += len(pd_dict)
-
-    # 납입면제유형코드
-    if py_exem_tp_cd in exem_dict:
-        ret[curIndex + exem_dict[py_exem_tp_cd]] = 1
-    curIndex += len(exem_dict)
-
-    # 저율해지유형코드
-    if lwrt_tmn_rfd_tp_cd in lwrt_dict:
-        ret[curIndex + exem_dict[lwrt_tmn_rfd_tp_cd]] = 1
-    curIndex += len(lwrt_dict)
-
-    # 계약의 보험기간 / 납입기간
-    ret[curIndex], ret[curIndex + 1] = ctr_py_prd / 100., ctr_ins_prd / 100.
-    curIndex += 2
-
-    # 수수료지급유형코드
-    if fee_pay_tp_cd in fee_dict:
-        ret[curIndex + fee_dict[fee_pay_tp_cd]] = 1
-    curIndex += len(fee_dict)
-
-    # 모집조직
-    if rcrt_bch_org_cd in bch_dict:
-        ret[curIndex + bch_dict[rcrt_bch_org_cd]] = 1
-    curIndex += len(bch_dict)
-
-    # 연령
-    ret[curIndex] = sbc_age / 100.
-    curIndex += 1
-
-    # 성별
-    if gndr_cd == '1':
-        ret[curIndex] = 1
-    elif gndr_cd == '2':
-        ret[curIndex + 1] = 1
-
-    curIndex += 2
-
-    # 직업급수
-    if 1 <= injr_gr_num <= 3:
-        ret[curIndex + injr_gr_num - 1] = 1
-    curIndex += 3
-
-    # 플랜코드
-    if plan_cd in pl_dict:
-        ret[curIndex + pl_dict[plan_cd]] = 1
-    curIndex += len(pl_dict)
-
-    # 상해등급
-    if inspe_grde_val is not None:
-        grde = int(inspe_grde_val[0])
-        if 1 <= grde <= 3:
-            ret[curIndex + grde - 1] = 1
-    curIndex += 3
-
-    # 한줄 eval은 거의 이와 비슷한 형태로 이어집니다.
-    # 담보코드(cov_list) 관련된 쪽은 유의하게 다릅니다.
-    # 이쪽은 추가 코멘트 남기겠습니다
-
-    # 담보코드
-    if cov_cd in cov_dict:
-        ret[curIndex + cov_dict[cov_cd][0]] = 1
-    curIndex += len(cov_dict)
-
-    if cov_cd in cov_dict:
-        input_val = 0
-        if cov_dict[cov_cd][1] <= 0:
-            input_val = 1
-        elif sbc_amt >= 0:
-            input_val = np.min([1.0, sbc_amt / cov_dict[cov_cd][1]])
-        else:
-            input_val = cov_dict[cov_cd][2] / cov_dict[cov_cd][1]
-        ret[curIndex + cov_dict[cov_cd][0]] = input_val
-    curIndex += len(cov_dict)
-
-    return ret
 
 
 ##############################
@@ -320,7 +230,12 @@ def main():
         json_data = json.load(fp)
 
     model_input = set_data(dt_pickle, json_data)
+    print(model_input)
+    print(model_input.ndim)
+    print(model_input.shape)
+    
     rst = get_predict(model, model_input)
+    print(rst)
 
 
 if __name__ == "__main__":
