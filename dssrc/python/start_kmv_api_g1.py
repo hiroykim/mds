@@ -49,13 +49,13 @@ class KmvApi(Resource):
 
     @staticmethod
     def get():
-        data: dict = request.get_json(silent=True)
+        data = request.get_json(silent=True)
         return {"res" : KmvApi.mkmsg(data)}
 
 
     @staticmethod
     def post():
-        data: dict = request.get_json(silent=True)
+        data = request.get_json(silent=True)
         return {"res" : KmvApi.mkmsg(data)}
 
 
