@@ -23,11 +23,9 @@ def set_gpu_mem():
             print(e)
 
 
-def parse_comm(dt_pickle, data):
-    comm_size = len(dt_pickle.get("pd_dict")) + len(dt_pickle.get("exem_dict")) + len(dt_pickle.get("lwrt_dict")) \
-                + 2 + len(dt_pickle.get("fee_dict")) + len(dt_pickle.get("bch_dict")) + 1 + 2 + 3 \
-                + len(dt_pickle.get("pl_dict")) + 3
-    ret = np.zeros(comm_size)
+def parse_comm(dt_pickle, data, rows):
+    cols = dt_pickle["com_clos"]
+    ret = np.zeros(rows, cols)
     curIndex = 0
 
     # 상품코드 len(dt_pickle.get("pd_dict"))
@@ -121,19 +119,19 @@ def parse_comm(dt_pickle, data):
     return comm_ret.reshape(comm_size, rows)
 
 
-def parse_cov(dt_pickle, data):
+def parse_cov(dt_pickle, data, rows):
+    cols = dt_pickle["cov_clos"]
     cov_dict = dt_pickle.get("cov_dict")
     sbc_amt = -1
-    cov_size = len(cov_dict)*2
-    cov_cnt = len(data.get("lgtmPdCovErnRtMngMdelCovInpCoVo"))
-    ret = np.zeros(cov_size*cov_cnt)
+    ret = np.zeros(rows,cols)
     curIndex = 0
     # 담보코드
+    cur_rows = 0
     lt_cov = data.get("lgtmPdCovErnRtMngMdelCovInpCoVo")
     for dt_cov in lt_cov:
         cov_cd = dt_cov["covCd"]
         if cov_cd in cov_dict:
-            ret[curIndex + cov_dict[cov_cd][0]] = 1
+            ret[cur_rows , cov_dict[cov_cd][0]] = 1
         curIndex += len(cov_dict)
 
         if cov_cd in cov_dict:
@@ -143,15 +141,28 @@ def parse_cov(dt_pickle, data):
                 input_val = np.min([1.0, sbc_amt / cov_dict[cov_cd][1]])
             else:
                 input_val = cov_dict[cov_cd][2] / cov_dict[cov_cd][1]
-            ret[curIndex + cov_dict[cov_cd][0]] = input_val
+            ret[cur_rows, curIndex + cov_dict[cov_cd][0]] = input_val
+   
         curIndex += len(cov_dict)
+        ins_prd = dt_cov["insPrd"]
+        py_prd = dt_cov["pyPrd"]
+        rnwl_ed_age = dt_cov["rnwlEdAge"]
+        ret[cur_rows, curIndex + 1] = ins_prd/100.
+        ret[cur_rows, curIndex + 2] = py_prd/100.
+        ret[cur_rows, curIndex + 3] = rnwl_ed_age/100.
+        
+        curIndex = 0
+        cur_rows += 1 
+
 
     return ret.reshape(cov_size, cov_cnt)
 
 
 def set_data(dt_pickle, data):
-    comm_input = parse_comm(dt_pickle, data)
-    cov_input = parse_cov(dt_pickle, data)
+    rows = len(data.get("lgtmPdCovErnRtMngMdelCovInpCoVo"))
+    comm_input = parse_comm(dt_pickle, data, rows)
+    return
+    cov_input = parse_cov(dt_pickle, data, rows)
 
     return np.concatenate((comm_input, cov_input), axis=1)
 
@@ -185,6 +196,21 @@ def load_pickle():
     dt_pickle["pl_dict"] = pl_dict
     dt_pickle["bch_dict"] = bch_dict
     dt_pickle["cov_dict"] = cov_dict
+    
+    com_cols = len(dt_pickle.get("pd_dict")) + len(dt_pickle.get("exem_dict")) + len(dt_pickle.get("lwrt_dict")) \
+                + 2 + len(dt_pickle.get("fee_dict")) + len(dt_pickle.get("bch_dict")) + 1 + 2 + 3 \
+                + len(dt_pickle.get("pl_dict")) + 3
+    cov_cols = len(dt_pickle.get("cov_dict")) * 2 + 3
+
+    dt_pickle["com_cols"] = com_cols
+    dt_pickle["cov_cols"] = cov_cols
+    tot_cols = com_cols + cov_cols
+    dt_pickle["tot_cols"] = tot_cols
+
+    #test
+    print("-----------------------")
+    
+    print(com_cols, cov_cols, tot_cols)
 
     return dt_pickle
 
