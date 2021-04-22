@@ -159,7 +159,7 @@ def set_data(dt_pickle, data):
     comm_input = parse_comm(dt_pickle, data, rows)
     cov_input = parse_cov(dt_pickle, data, rows)
 
-    return np.concatenate((comm_input, cov_input), axis=1).reshape(-1,)
+    return np.concatenate((comm_input, cov_input), axis=1)
 
 
 def get_model(model_loc):
