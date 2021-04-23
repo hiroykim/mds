@@ -210,7 +210,9 @@ def load_pickle():
 
 
 def get_predict(model, model_input):
-    output = model.predict(model_input.reshape(1, -1))
+    #output = model.predict(model_input.reshape(1, -1))
+    output = model.predict(model_input)
+    print(output)
     return np.sign(output[0][0]) * (np.exp(np.abs(output[0][0]) * 10) - 1)
 
 
