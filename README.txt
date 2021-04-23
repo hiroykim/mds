@@ -3,3 +3,6 @@
 
 # momory alloc error
   -> https://inpages.tistory.com/155
+
+# python3.5.4
+./configure --with-openssl=/usr/src/openssl-1.0.2o --enable-optimizations
