@@ -153,8 +153,8 @@ def parse_cov(dt_pickle, data, rows):
     return ret
 
 
-def set_data(dt_pickle, data):
-    rows = len(data.get("lgtmPdCovErnRtMngMdelCovInpCoVo"))
+def set_data(dt_pickle, data, rows):
+
     print("rows: ", rows)
     comm_input = parse_comm(dt_pickle, data, rows)
     cov_input = parse_cov(dt_pickle, data, rows)
@@ -209,11 +209,13 @@ def load_pickle():
     return dt_pickle
 
 
-def get_predict(model, model_input):
+def get_predict(model, model_input, rows):
     #output = model.predict(model_input.reshape(1, -1))
     output = model.predict(model_input)
-    print(output)
-    return np.sign(output[0][0]) * (np.exp(np.abs(output[0][0]) * 10) - 1)
+    output2 = np.zeros_like(output)
+    for i in range(0, rows):
+        output2[i][0] = np.sign(output[i][0]) * (np.exp(np.abs(output[i][0]) * 10) - 1)
+    return output, output2
 
 
 
@@ -231,14 +233,31 @@ def main():
         # dict
         json_data = json.load(fp)
 
-    model_input = set_data(dt_pickle, json_data)
+    rows = len(json_data.get("lgtmPdCovErnRtMngMdelCovInpCoVo"))
+    model_input = set_data(dt_pickle, json_data, rows)
     print(model_input)
     print(model_input.ndim)
     print(model_input.shape)
     
-    rst = get_predict(model, model_input)
-    print(rst)
+    np_out, np_out2 = get_predict(model, model_input, rows)
+    print(np_out.ndim)
+    print(np_out.shape)
+    print(np_out2.ndim)
+    print(np_out2.shape)
+    #print(np_out)
 
+    lt_rst = list()
+    lt_cov = json_data.get("lgtmPdCovErnRtMngMdelCovInpCoVo")
+    i=0
+    for dt_cov in lt_cov:
+        dt_rst=dict()
+        dt_rst["covCd"] = dt_cov.get("covCd")
+        dt_rst["mdelPcsRsl"] = str(np_out[i][0])
+        dt_rst["ernRt"] = str(np_out2[i][0])
+        lt_rst.append(dt_rst)
+        i += 1
+
+    print(lt_rst)
 
 if __name__ == "__main__":
     main()

@@ -12,6 +12,7 @@ from flask_restful import Api, Resource
 from flask_cors import CORS
 from web import kmv_api
 import os
+import time
 
 app = Flask(__name__)
 CORS(app)
@@ -42,9 +43,22 @@ class KmvApi(Resource):
 
     @staticmethod
     def mkmsg(data):
-        model_input = kmv_api.set_data(dt_pickle, data)
-        rst = kmv_api.get_predict(model, model_input)
-        return "Hello functions : " + str(rst) + ",param : " + str(data)
+        rows = len(data.get("lgtmPdCovErnRtMngMdelCovInpCoVo"))
+        model_input = kmv_api.set_data(dt_pickle, data, rows)
+        np_out, np_out2 = kmv_api.get_predict(model, model_input, rows)
+
+        lt_rst = list()
+        lt_cov = data.get("lgtmPdCovErnRtMngMdelCovInpCoVo")
+        i = 0
+        for dt_cov in lt_cov:
+            dt_rst = dict()
+            dt_rst["covCd"] = dt_cov.get("covCd")
+            dt_rst["mdelPcsRsl"] = str(np_out[i][0])
+            dt_rst["ernRt"] = str(np_out2[i][0])
+            lt_rst.append(dt_rst)
+            i += 1
+
+        return lt_rst
 
 
     @staticmethod
@@ -55,8 +69,12 @@ class KmvApi(Resource):
 
     @staticmethod
     def post():
+        st_time = time.time()
         data = request.get_json(silent=True)
-        return {"res" : KmvApi.mkmsg(data)}
+        ret = KmvApi.mkmsg(data)
+        print("gab : ", time.time() - st_time)
+        return {"res" : ret }
+
 
 
 api.add_resource(KmvApi, "/kmv")

@@ -23,6 +23,14 @@ def main():
         json_data = json.load(fp)
 
 
+    URL="http://127.0.0.1:8111/kmv"
+    print(json_data)
+    headers = {'Content-Type': 'application/json; charset=utf-8'}
+    res=requests.post(URL, headers=headers, data=json.dumps(json_data))
+    print(res.status_code)
+    print(res.text)
+
+
 
 if __name__ == "__main__":
     main()
