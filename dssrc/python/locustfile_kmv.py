@@ -35,5 +35,5 @@ class PredictTaskUser(HttpUser):
         l_scnt += 1
 
 
-	
+	# locust -f locustfile_kmv.py --host=http://127.0.0.1:8111
 
