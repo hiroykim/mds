@@ -13,7 +13,7 @@ class PredictTaskUser(HttpUser):
     def kmv(self):
         global g_kcnt
         l_kcnt=0
-        if g_kcnt % 10 == 0:
+        if g_kcnt % 50 == 0:
             print("pid, g_kcnt, l_kcnt :", os.getpid(), g_kcnt, l_kcnt)
         # print("on_kmv :", type(json_data))
         headers = {'Content-Type': 'application/json; charset=utf-8'}
