@@ -6,7 +6,7 @@ def build_big_model(
     # small input and output in order to avoid latency due to data transfer through the internet during our tests
     input_width=10,
     output_width=10,
-    hidden_layers_width=10**4,
+    hidden_layers_width=200,
     nb_hidden_layers=200,
 ):
     input_layer = Input((input_width,))
