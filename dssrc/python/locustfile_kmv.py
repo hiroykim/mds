@@ -7,13 +7,14 @@ g_scnt = 0
 g_kcnt = 0
 
 class PredictTaskUser(HttpUser):
-    wait_time = between(1,2)
+    wait_time = between(0.5,1)
 
     @task(1)
     def kmv(self):
         global g_kcnt
         l_kcnt=0
-        print("pid, g_kcnt, l_kcnt :", os.getpid(), g_kcnt, l_kcnt)
+        if g_kcnt % 10 == 0:
+            print("pid, g_kcnt, l_kcnt :", os.getpid(), g_kcnt, l_kcnt)
         # print("on_kmv :", type(json_data))
         headers = {'Content-Type': 'application/json; charset=utf-8'}
         self.client.post('/kmv', data=json.dumps(json_data), headers=headers)

@@ -155,7 +155,7 @@ def parse_cov(dt_pickle, data, rows):
 
 def set_data(dt_pickle, data, rows):
 
-    print("rows: ", rows)
+    # print("rows: ", rows)
     comm_input = parse_comm(dt_pickle, data, rows)
     cov_input = parse_cov(dt_pickle, data, rows)
 
