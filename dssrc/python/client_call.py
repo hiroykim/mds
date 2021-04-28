@@ -18,17 +18,19 @@ import json
 
 def main():
 
-    with open("/application/mds/dssrc/data/client/java_kmv_input.json", "r") as fp:
+    #with open("/application/mds/dssrc/data/client/java_kmv_input.json", "r") as fp:
+    with open("C:\mds\dssrc\data\client\java_kmv_input.json", "r") as fp:
         # dict
         json_data = json.load(fp)
 
-    URL="http://127.0.0.1:8111/kmv"
+    # URL="http://127.0.0.1:8111/kmv"
+    URL="http://221.168.32.244:8080/kmv"
     # print(json_data)
     # print("type: ", type(json_data))
     headers = {'Content-Type': 'application/json; charset=utf-8'}
     res=requests.post(URL, headers=headers, data=json.dumps(json_data))
-    print(res.status_code)
     print(res.text)
+    print(res.status_code)
 
 
 

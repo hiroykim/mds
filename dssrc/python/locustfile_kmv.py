@@ -24,7 +24,8 @@ class PredictTaskUser(HttpUser):
     def on_start(self):
         global json_data, g_scnt
         l_scnt=0
-        with open("/application/mds/dssrc/data/client/java_kmv_input.json", "r") as fp:
+        #with open("/application/mds/dssrc/data/client/java_kmv_input.json", "r") as fp:
+        with open("C:\mds\dssrc\data\client\java_kmv_input.json", "r") as fp:
             json_data = json.load(fp)
 
         # print("on_start :", type(json_data))
