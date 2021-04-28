@@ -71,7 +71,7 @@ class KmvApi(Resource):
         # print("header :", request.headers)
         # print("data : ", data)
         ret = KmvApi.mkmsg(data)
-        #print("gab : ", time.time() - st_time)
+        print("gab : ", time.time() - st_time)
         return {"res": ret}
 
 
