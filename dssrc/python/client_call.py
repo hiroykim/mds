@@ -15,18 +15,18 @@ import os
 import requests
 import json
 
-win=False
-cloud=False
+win=True
+cloud=True
 
 
 def main():
 
     if win:
         with open("C:\mds\dssrc\data\client\java_kmv_input.json", "r") as fp:
+            json_data = json.load(fp)
     else:
         with open("/application/mds/dssrc/data/client/java_kmv_input.json", "r") as fp:
-        # dict
-        json_data = json.load(fp)
+            json_data = json.load(fp)
 
     if cloud:
         URL="http://221.168.32.244:8080/kmv"
