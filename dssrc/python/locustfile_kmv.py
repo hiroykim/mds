@@ -27,11 +27,11 @@ class PredictTaskUser(HttpUser):
         global json_data, g_scnt
         l_scnt=0
         if win:
-	    with open("C:\mds\dssrc\data\client\java_kmv_input.json", "r") as fp:
-	        json_data = json.load(fp)
+	        with open("C:\mds\dssrc\data\client\java_kmv_input.json", "r") as fp:
+	            json_data = json.load(fp)
         else:
             with open("/application/mds/dssrc/data/client/java_kmv_input.json", "r") as fp:
-	        json_data = json.load(fp)
+	            json_data = json.load(fp)
 
         # print("on_start :", type(json_data))
         #print("start pid, g_scnt, l_scnt :", os.getpid(), g_scnt, l_scnt)
