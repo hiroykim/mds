@@ -6,6 +6,8 @@ json_data =""
 g_scnt = 0
 g_kcnt = 0
 
+win=False
+
 class PredictTaskUser(HttpUser):
     wait_time = between(0.5,1)
 
@@ -24,9 +26,12 @@ class PredictTaskUser(HttpUser):
     def on_start(self):
         global json_data, g_scnt
         l_scnt=0
-        #with open("/application/mds/dssrc/data/client/java_kmv_input.json", "r") as fp:
-        with open("C:\mds\dssrc\data\client\java_kmv_input.json", "r") as fp:
-            json_data = json.load(fp)
+        if win:
+	    with open("C:\mds\dssrc\data\client\java_kmv_input.json", "r") as fp:
+	        json_data = json.load(fp)
+        else:
+            with open("/application/mds/dssrc/data/client/java_kmv_input.json", "r") as fp:
+	        json_data = json.load(fp)
 
         # print("on_start :", type(json_data))
         #print("start pid, g_scnt, l_scnt :", os.getpid(), g_scnt, l_scnt)
