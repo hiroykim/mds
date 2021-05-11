@@ -20,7 +20,8 @@ api = Api(app)
 # gpu 0,1
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
-model_loc = '/application/mds/dssrc/data/model/KMV_prediction_v2021030201_1031_0.0006_0.0005.h5'
+#model_loc = '/application/mds/dssrc/data/model/KMV_prediction_v2021030201_1031_0.0006_0.0005.h5'
+model_loc = '/application/mds/dssrc/data/model/KMV_model.h5'
 kmv_api.set_gpu_mem()
 model = kmv_api.get_model(model_loc)
 dt_pickle = kmv_api.load_pickle()
