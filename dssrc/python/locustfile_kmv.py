@@ -6,7 +6,7 @@ json_data =""
 g_scnt = 0
 g_kcnt = 0
 
-win=False
+win=True
 
 class PredictTaskUser(HttpUser):
     wait_time = between(0.5,1)
@@ -43,4 +43,5 @@ class PredictTaskUser(HttpUser):
 
 	# locust -f locustfile_kmv.py --host=http://127.0.0.1:8111
     # locust -f locustfile_kmv.py --host=http://221.168.32.244:8080 --web-port=8089
+    # nohup locust -f locustfile_kmv.py --host=http://221.168.32.244:8080 --web-port=8089 1>/dev/null 2>&1 &
 
