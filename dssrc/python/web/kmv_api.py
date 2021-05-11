@@ -225,7 +225,8 @@ def get_predict(model, model_input, rows):
 def main():
     os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
-    model_loc = '/application/mds/dssrc/data/model/KMV_prediction_v2021030201_1031_0.0006_0.0005.h5'
+    #model_loc = '/application/mds/dssrc/data/model/KMV_prediction_v2021030201_1031_0.0006_0.0005.h5'
+    model_loc = '/application/mds/dssrc/data/model/KMV_model.h5'
     set_gpu_mem()
     model = get_model(model_loc)
     dt_pickle = load_pickle()
