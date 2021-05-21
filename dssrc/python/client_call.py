@@ -10,8 +10,8 @@ __date__ = "creation: 2021-03-06, modification: 0000-00-00"
 import requests
 import json
 
-win=True
-cloud=True
+win=False
+cloud=False
 
 
 def main():
