@@ -61,7 +61,8 @@ stdout_logfile=/tmp/svd_mkms_web1.out.log
 
 	git clone https://github.com/hiroykim/mds.git mds
 	pip install h5py==2.10.0
-	pip install gunicorn flask flask_restful flask_cors
+	pip install gunicorn flask flask_restful flask_cors supervisor
+	pip install APScheduler beautifulsoup4 elastic-apm elasticsearch flashtext locust
 
 #tensorflow2.4 설치
 	deactivate
@@ -71,18 +72,43 @@ stdout_logfile=/tmp/svd_mkms_web1.out.log
 	pip install tensorflow==2.4.0
 	pip install h5py==2.10.0
 	pip install gunicorn flask flask_restful flask_cors supervisor
+	pip install APScheduler beautifulsoup4 elastic-apm elasticsearch flashtext locust
 
 #cuda설정
 	yum install gcc -y
 	yum install kernel-devel -y
 	.bash_rc ----> export LD_LIBRARY_PATH=/usr/local/cuda/lib64
-            MS에서 cuda 11.3 설치 후 10도 가능함(?)
+            MS에서 cuda 11.2.2 설치 후 10도 가능함(?)
 		bash cuda_10.0.130_410.48_linux.run
 		bash cuda_10.0.130.1_linux.run
                         'cp' -f include/* /usr/local/cuda/include/
 		'cp' -f lib64/* /usr/local/cuda/lib64/
             rm /etc/ld.so.conf.d/000_cuda.conf; ldconfig -v
 
+	bash cuda_11.2.2_460.32.03_linux.run
+
 #cuda download
 	wget https://developer.download.nvidia.com/compute/cuda/11.3.0/local_installers/cuda_11.3.0_465.19.01_linux.run
 	wget https://developer.download.nvidia.com/compute/cuda/11.2.2/local_installers/cuda_11.2.2_460.32.03_linux.run
+------------------------------------------------------------------------------------------------
+ElasticSearch APM Server
+------------------------------------------------------------------------------------------------
+#python3.6설치
+	yum update -y
+	yum search python36
+	yum install python36 -y
+
+#git 설치
+	yum install git -y
+
+#dmnmds 설정
+	su - dmnmds
+	python3 -m venv venv
+	.bashrc ----> . ~/venv/bin/activate
+	pip install --upgrade pip
+	pip install tensorflow-gpu==2.0.0
+
+	git clone https://github.com/hiroykim/mds.git mds
+	pip install h5py==2.10.0
+	pip install gunicorn flask flask_restful flask_cors supervisor
+	pip install APScheduler beautifulsoup4 elastic-apm elasticsearch flashtext locust
