@@ -28,7 +28,7 @@ class PredictTaskUser(HttpUser):
         global json_data, g_scnt
         l_scnt = 0
         if win:
-            with open("C:\mds\dssrc\data\client\java_kmv_input.json", "r") as fp:
+            with open("D:\mds\dssrc\data\client\java_kmv_input.json", "r") as fp:
                 json_data = json.load(fp)
         else:
             with open("/application/mds/dssrc/data/client/java_kmv_input.json", "r") as fp:
