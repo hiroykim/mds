@@ -45,7 +45,7 @@ app.config['ELASTIC_APM'] = {
     'SERVER_URL': 'http://192.168.255.72:8200',
     #'SERVER_URL': 'http://127.0.0.1:8200',
     # 'SECRET_TOKEN': ''
-   'DEBUG': True
+   'DEBUG': False
 }
 
 apm = ElasticAPM(app, logging=logging.WARNING)
