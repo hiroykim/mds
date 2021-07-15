@@ -203,8 +203,9 @@ def load_pickle():
     dt_pickle["tot_cols"] = tot_cols
 
     #test
-    print("-----------------------")
-    print(com_cols, cov_cols, tot_cols)
+    if 0:
+        print("-----------------------")
+        print(com_cols, cov_cols, tot_cols)
 
     return dt_pickle
 

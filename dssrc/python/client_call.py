@@ -10,7 +10,7 @@ __date__ = "creation: 2021-03-06, modification: 0000-00-00"
 import requests
 import json
 
-win=True
+win=False
 cloud=False
 
 
@@ -26,7 +26,7 @@ def main():
     if cloud:
         URL="http://221.168.32.244:8080/kmv"
     else:
-        URL="http://52.141.36.141:8888/kmv"
+        URL="http://127.0.0.1:8888/kmv"
     
     # print(json_data)
     # print("type: ", type(json_data))
