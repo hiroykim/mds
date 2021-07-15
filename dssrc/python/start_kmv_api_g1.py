@@ -42,7 +42,8 @@ from elasticapm.handlers.logging import Formatter
 
 app.config['ELASTIC_APM'] = {
     'SERVICE_NAME': 'kmv_apm',
-    'SERVER_URL': 'http://127.0.0.1:8200',
+    'SERVER_URL': 'http://192.168.255.72:8200',
+    #'SERVER_URL': 'http://127.0.0.1:8200',
     # 'SECRET_TOKEN': ''
    'DEBUG': True
 }
