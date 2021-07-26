@@ -34,6 +34,27 @@ def before_first_request():
     model = kmv_api.get_model(model_loc)
 '''
 
+# flask-apm
+import logging
+from elasticapm.contrib.flask import ElasticAPM
+from elasticapm.handlers.logging import Formatter
+
+
+app.config['ELASTIC_APM'] = {
+    'SERVICE_NAME': 'kmv_apm',
+    'SERVER_URL': 'http://192.168.255.72:8200',
+    #'SERVER_URL': 'http://127.0.0.1:8200',
+    # 'SECRET_TOKEN': ''
+   'DEBUG': False
+}
+
+apm = ElasticAPM(app, logging=logging.WARNING)
+fh = logging.FileHandler('kmv_apm.log')
+formatter = Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+fh.setFormatter(formatter)
+logging.getLogger().addHandler(fh)
+
+
 
 #################
 # Class
@@ -79,6 +100,6 @@ class KmvApi(Resource):
 api.add_resource(KmvApi, "/kmv")
 
 if __name__ == "__main__":
-    app.run(debug=True, use_reloader=True, host='0.0.0.0', port=8111)
+    app.run(debug=True, use_reloader=True, host='0.0.0.0', port=8888)
 
 # curl -iX POST 'http://127.0.0.1:8111/kmv' -H 'Content-Type:application/json' -d '{"param":"test"}'
