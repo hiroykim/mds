@@ -122,7 +122,7 @@ class KmvApi(Resource):
             print("data : ", json_enc)
 
         ret = KmvApi.mkmsg(json_enc)
-        compress_data = zlib.compress(json.dumps(ret).encode(encoding='utf-8'))
+        compress_data = zlib.compress(json.dumps({"res":ret}).encode(encoding='utf-8'),level=9)
         base64_en = base64.b64encode(compress_data)
         response = make_response(base64_en)
         if DEBUG:

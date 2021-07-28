@@ -26,7 +26,7 @@ def main():
         with open("/application/mds/dssrc/data/client/java_kmv_input.json", "r") as fp:
             json_data = json.load(fp)
 
-    compress_data = zlib.compress(json.dumps(json_data).encode(encoding='utf-8'))
+    compress_data = zlib.compress(json.dumps(json_data).encode(encoding='utf-8'), level=9)
     base64_en = base64.b64encode(compress_data)
     if DEBUG:
         print(compress_data)
