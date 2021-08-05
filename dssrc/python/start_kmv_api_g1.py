@@ -58,7 +58,7 @@ formatter = Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 fh.setFormatter(formatter)
 logging.getLogger().addHandler(fh)
 
-DEBUG=False
+DEBUG=True
 
 #################
 # Class
@@ -118,7 +118,8 @@ class KmvApi(Resource):
         if DEBUG:
             st_time = time.time()
             print("request :", request)
-            print("header :", request.headers)
+            print("header:", request.headers)
+            print("param:", request.values)
             print("data : ", json_enc)
 
         ret = KmvApi.mkmsg(json_enc)

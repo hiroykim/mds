@@ -12,7 +12,8 @@ bch_list = []
 exem_list = []
 lwrt_list = []
 
-with open("/home/hdpapp/yktest/python_test/pd_list", "rb") as lf:
+#with open("/home/hdpapp/yktest/python_test/pd_list", "rb") as lf:
+with open("pd_dict", "rb") as lf:
 	pd_list = pickle.load(lf)
 
 print(pd_list)
