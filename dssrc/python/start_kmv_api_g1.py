@@ -59,8 +59,8 @@ app.config['ELASTIC_APM'] = {
    'DEBUG': False
 }
 
-#apm = ElasticAPM(app, logging=logging.WARNING)
-apm = ElasticAPM(app, logging=logging.INFO)
+apm = ElasticAPM(app, logging=logging.WARNING)
+#apm = ElasticAPM(app, logging=logging.INFO)
 #apm = ElasticAPM(app, logging=logging.DEBUG)
 fh = logging.FileHandler('kmv_apm.log')
 formatter = Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -99,12 +99,12 @@ class KmvApi(Resource):
                 lt_rst.append(dt_rst)
                 i += 1
 
-            #raise Exception("Test Error")
-            #raise Exception(traceback.format_exc())
+            #raise Exception("Test")
             return lt_rst
         except Exception:
             apm.capture_exception()
             apm.capture_message("APM Error - mkmsg Error")
+            raise Exception(traceback.format_exc())
             return "mkmsg Error is Occured"
 
     @staticmethod
@@ -137,18 +137,21 @@ class KmvApi(Resource):
             print("header:", request.headers)
             print("param:", request.values)
             print("data : ", json_enc)
-
-        ret = KmvApi.mkmsg(json_enc)
-        compress_data = zlib.compress(json.dumps({"res":ret}).encode(encoding='utf-8'),level=9)
-        base64_en = base64.b64encode(compress_data)
-        response = make_response(base64_en)
-        if DEBUG:
-            print("gab : ", time.time() - st_time)
-        return response
+        
+        try:
+            ret = KmvApi.mkmsg(json_enc)
+            compress_data = zlib.compress(json.dumps({"res":ret}).encode(encoding='utf-8'),level=9)
+            base64_en = base64.b64encode(compress_data)
+            response = make_response(base64_en)
+            if DEBUG:
+                print("gab : ", time.time() - st_time)
+            return response
+        except Exception:
+            return make_response(traceback.format_exc(), 500)
 
 api.add_resource(KmvApi, "/kmv")
 
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=True, host='0.0.0.0', port=8888)
-
+ 
 # curl -iX POST 'http://127.0.0.1:8111/kmv' -H 'Content-Type:application/json' -d '{"param":"test"}'

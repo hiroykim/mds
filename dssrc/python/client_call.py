@@ -54,17 +54,21 @@ def main():
     res=requests.post(URL, headers=headers, data=data)
     #res=requests.get(URL)
 
-    compress_data = base64.b64decode(res.text)
-    json_data = zlib.decompress(compress_data).decode('utf-8')
-
-    if DEBUG:
+    if(res.status_code == 200):
+        compress_data = base64.b64decode(res.text)
+        json_data = zlib.decompress(compress_data).decode('utf-8')
+        print("======================================================")
+        print(json.loads(json_data))
+        print("======================================================")
+        print(res.status_code)
+        print("======================================================")
+    else:
         print("======================================================")
         print(res.text)
         print("======================================================")
         print(res.status_code)
         print("======================================================")
 
-    print(json.loads(json_data))
 
 if __name__ == "__main__":
     main()
