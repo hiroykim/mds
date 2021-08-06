@@ -46,7 +46,7 @@ def parse_comm(dt_pickle, data, rows):
     lwrt_dict = dt_pickle.get("lwrt_dict")
     lwrt_tmn_rfd_tp_cd = data.get("lwrtTmnRfdTpCd")
     if lwrt_tmn_rfd_tp_cd in lwrt_dict:
-        ret[:, curIndex + exem_dict[lwrt_tmn_rfd_tp_cd]] = 1
+        ret[:, curIndex + lwrt_dict[lwrt_tmn_rfd_tp_cd]] = 1
     curIndex += len(lwrt_dict)
 
     # check!!

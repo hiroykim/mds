@@ -15,6 +15,8 @@ import time
 import zlib
 import base64
 import json
+import traceback
+import socket
 
 
 app = Flask(__name__)
@@ -43,22 +45,29 @@ import logging
 from elasticapm.contrib.flask import ElasticAPM
 from elasticapm.handlers.logging import Formatter
 
+if socket.gethostname().startswith("vm-gpu"):
+    APM_URL='http://192.168.255.72:8200'
+else:
+    APM_URL='http://127.0.0.1:8200'
 
 app.config['ELASTIC_APM'] = {
     'SERVICE_NAME': 'kmv_apm',
-    'SERVER_URL': 'http://192.168.255.72:8200',
+    #'SERVER_URL': 'http://192.168.255.72:8200',
     #'SERVER_URL': 'http://127.0.0.1:8200',
+    'SERVER_URL': APM_URL,
     # 'SECRET_TOKEN': ''
    'DEBUG': False
 }
 
-apm = ElasticAPM(app, logging=logging.WARNING)
+#apm = ElasticAPM(app, logging=logging.WARNING)
+apm = ElasticAPM(app, logging=logging.INFO)
+#apm = ElasticAPM(app, logging=logging.DEBUG)
 fh = logging.FileHandler('kmv_apm.log')
 formatter = Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 fh.setFormatter(formatter)
 logging.getLogger().addHandler(fh)
 
-DEBUG=True
+DEBUG=False
 
 #################
 # Class
@@ -67,29 +76,36 @@ class KmvApi(Resource):
 
     @staticmethod
     def mkmsg(json_enc):
-        compress_data = base64.b64decode(json_enc)
-        json_str = zlib.decompress(compress_data).decode('utf-8')
-        data = json.loads(json_str)
-        if DEBUG:
-            print("compress_data : ", compress_data)
-            print("data : ", json_str)
+        try:
+            compress_data = base64.b64decode(json_enc)
+            json_str = zlib.decompress(compress_data).decode('utf-8')
+            data = json.loads(json_str)
+            if DEBUG:
+                print("compress_data : ", compress_data)
+                print("data : ", json_str)
 
-        rows = len(data.get("lgtmPdCovErnRtMngMdelCovInpCoVo"))
-        model_input = kmv_api.set_data(dt_pickle, data, rows)
-        np_out, np_out2 = kmv_api.get_predict(model, model_input, rows)
+            rows = len(data.get("lgtmPdCovErnRtMngMdelCovInpCoVo"))
+            model_input = kmv_api.set_data(dt_pickle, data, rows)
+            np_out, np_out2 = kmv_api.get_predict(model, model_input, rows)
 
-        lt_rst = list()
-        lt_cov = data.get("lgtmPdCovErnRtMngMdelCovInpCoVo")
-        i = 0
-        for dt_cov in lt_cov:
-            dt_rst = dict()
-            dt_rst["covCd"] = dt_cov.get("covCd")
-            dt_rst["mdelPcsRsl"] = str(np_out[i][0])
-            dt_rst["ernRt"] = str(np_out2[i][0])
-            lt_rst.append(dt_rst)
-            i += 1
+            lt_rst = list()
+            lt_cov = data.get("lgtmPdCovErnRtMngMdelCovInpCoVo")
+            i = 0
+            for dt_cov in lt_cov:
+                dt_rst = dict()
+                dt_rst["covCd"] = dt_cov.get("covCd")
+                dt_rst["mdelPcsRsl"] = str(np_out[i][0])
+                dt_rst["ernRt"] = str(np_out2[i][0])
+                lt_rst.append(dt_rst)
+                i += 1
 
-        return lt_rst
+            #raise Exception("Test Error")
+            #raise Exception(traceback.format_exc())
+            return lt_rst
+        except Exception:
+            apm.capture_exception()
+            apm.capture_message("APM Error - mkmsg Error")
+            return "mkmsg Error is Occured"
 
     @staticmethod
     def get():
