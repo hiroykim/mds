@@ -10,6 +10,7 @@ if len(sys.argv) == 2 :
         with open(f,"rb") as fp:
             content = pickle.load(fp)
     print(content)
+    print(type(content))
 
 else:
     for f in glob.glob("./*dict"):

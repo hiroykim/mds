@@ -1,6 +1,6 @@
 {
   "untPdCd": "61875",
-  "rpsPdCd": "60329",
+  "rpsPdCd": "62068",
   "pyExemTpCd": "01",
   "lwrtTmnRfdTpCd": "07",
   "ctrInsPrd": "57",
@@ -15,7 +15,7 @@
   "lgtmPdCovErnRtMngMdelCovInfCoVo": null,
   "lgtmPdCovErnRtMngMdelCovInpCoVo": [
     {
-      "covCd": "610605",
+      "covCd": "631724",
       "insPrd": 57,
       "insPrdTpCd": "",
       "pyPrd": 30,

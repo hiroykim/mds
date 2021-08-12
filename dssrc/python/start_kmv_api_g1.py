@@ -17,6 +17,7 @@ import base64
 import json
 import traceback
 import socket
+import pickle
 
 
 app = Flask(__name__)
@@ -31,6 +32,10 @@ model_loc = '/application/mds/dssrc/data/model/KMV_model.h5'
 kmv_api.set_gpu_mem()
 model = kmv_api.get_model(model_loc)
 dt_pickle = kmv_api.load_pickle()
+
+with open("/application/mds/dssrc/data/params/whitelist", "rb") as lf:
+    wh_set = pickle.load(lf)
+
 
 '''
 @app.before_first_request
@@ -96,6 +101,15 @@ class KmvApi(Resource):
                 dt_rst["covCd"] = dt_cov.get("covCd")
                 dt_rst["mdelPcsRsl"] = str(np_out[i][0])
                 dt_rst["ernRt"] = str(np_out2[i][0])
+                if len(data.get("sbcAge")) == 2:
+                    age_str = "0"+ data.get("sbcAge")[0] + "0"
+                elif len(data.get("sbcAge")) == 3:
+                    age_str = data.get("sbcAge")[0:2] + "0"
+                else:
+                    age_str = "000"
+                key_str = data.get("rpsPdCd") + dt_cov.get("covCd") + data.get("gndrCd") + age_str
+                #print(key_str)
+                dt_rst["flg"] = 1 if key_str in wh_set else 0
                 lt_rst.append(dt_rst)
                 i += 1
 
