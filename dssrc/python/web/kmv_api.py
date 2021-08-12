@@ -235,7 +235,7 @@ def main():
         # dict
         json_data = json.load(fp)
 
-    rows = len(json_data.get("lgtmPdCovErnRtMngMdelCovInpCoVo"))
+    rows = len(json_data.get("lgtmPdCovErnRtMngMdelCovInpCoVo",""))
     model_input = set_data(dt_pickle, json_data, rows)
     print(model_input)
     print(model_input.ndim)

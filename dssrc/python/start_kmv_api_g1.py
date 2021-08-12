@@ -89,24 +89,24 @@ class KmvApi(Resource):
                 print("compress_data : ", compress_data)
                 print("data : ", json_str)
 
-            rows = len(data.get("lgtmPdCovErnRtMngMdelCovInpCoVo"))
+            rows = len(data.get("lgtmPdCovErnRtMngMdelCovInpCoVo",""))
             model_input = kmv_api.set_data(dt_pickle, data, rows)
             np_out, np_out2 = kmv_api.get_predict(model, model_input, rows)
 
             lt_rst = list()
             lt_cov = data.get("lgtmPdCovErnRtMngMdelCovInpCoVo")
             i = 0
+            if len(data.get("sbcAge","")) == 2:
+                age_str = "0"+ data.get("sbcAge")[0] + "0"
+            elif len(data.get("sbcAge","")) == 3:
+                age_str = data.get("sbcAge")[0:2] + "0"
+            else:
+                age_str = "000"
             for dt_cov in lt_cov:
                 dt_rst = dict()
                 dt_rst["covCd"] = dt_cov.get("covCd")
                 dt_rst["mdelPcsRsl"] = str(np_out[i][0])
                 dt_rst["ernRt"] = str(np_out2[i][0])
-                if len(data.get("sbcAge")) == 2:
-                    age_str = "0"+ data.get("sbcAge")[0] + "0"
-                elif len(data.get("sbcAge")) == 3:
-                    age_str = data.get("sbcAge")[0:2] + "0"
-                else:
-                    age_str = "000"
                 key_str = data.get("rpsPdCd") + dt_cov.get("covCd") + data.get("gndrCd") + age_str
                 #print(key_str)
                 dt_rst["flg"] = 1 if key_str in wh_set else 0
