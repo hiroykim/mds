@@ -9,7 +9,7 @@ __date__ = "creation: 2021-03-06, modification: 0000-00-00"
 from flask import Flask, request, make_response
 from flask_restful import Api, Resource
 from flask_cors import CORS
-from web import kmv_api
+from web import kmv_api, logger
 import os
 import time
 import zlib
@@ -73,6 +73,15 @@ fh.setFormatter(formatter)
 logging.getLogger().addHandler(fh)
 
 DEBUG=False
+LOG_F=True
+
+log = logger.get_timed_rotating_logger(
+        logger_name="KMV_API",
+        log_dir_path="/application/mds/dssrc/python/logs",
+        log_file_name="kmv_api.log",
+        log_level="info",
+        backup_count=8
+)
 
 #################
 # Class
@@ -88,6 +97,8 @@ class KmvApi(Resource):
             if DEBUG:
                 print("compress_data : ", compress_data)
                 print("data : ", json_str)
+            if LOG_F:
+                log.info("\ninput_json : \n"+ json_str )
 
             rows = len(data.get("lgtmPdCovErnRtMngMdelCovInpCoVo",""))
             model_input = kmv_api.set_data(dt_pickle, data, rows)
@@ -113,6 +124,8 @@ class KmvApi(Resource):
                 lt_rst.append(dt_rst)
                 i += 1
 
+            if LOG_F:
+                log.info("\noutput_json : \n"+ json_str )
             #raise Exception("Test")
             return lt_rst
         except Exception:
