@@ -73,7 +73,7 @@ fh.setFormatter(formatter)
 logging.getLogger().addHandler(fh)
 
 DEBUG=False
-LOG_F=True
+LOG_F=False
 
 log = logger.get_timed_rotating_logger(
         logger_name="KMV_API",
