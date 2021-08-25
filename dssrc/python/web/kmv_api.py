@@ -87,13 +87,13 @@ def parse_comm(dt_pickle, data, rows):
 
     # check!!
     # 직업급수 3
-    injr_gr_num = data.get("injrGrde",0)
-    if injr_gr_num.isdigit():
-        injr_gr_num = int(injr_gr_num)
+    job_gr_num = data.get("jobGrd","1")
+    if job_gr_num.isdigit():
+        job_gr_num = int(job_gr_num)
     else:
-        injr_gr_num=0
-    if 1 <= injr_gr_num <= 3:
-        ret[:, curIndex + injr_gr_num - 1] = 1
+        job_gr_num =1
+    if 1 <= job_gr_num <= 3:
+        ret[:, curIndex + job_gr_num - 1] = 1
     curIndex += 3
 
     # 플랜코드 len(dt_pickle.get("pl_dict"))
@@ -105,11 +105,13 @@ def parse_comm(dt_pickle, data, rows):
 
     # check!!
     # 상해등급 3
-    inspe_grde_val = "3_1"
-    if inspe_grde_val is not None:
-        grde = int(inspe_grde_val[0])
-        if 1 <= grde <= 3:
-            ret[:, curIndex + grde - 1] = 1
+    injr_gr_num = data.get("injrGrde","0")
+    if injr_gr_num.isdigit():
+        grde = int(injr_gr_num)
+    else:
+        grde = 0
+    if 1 <= grde <= 3:
+        ret[:, curIndex + grde - 1] = 1
 
     return ret
 
