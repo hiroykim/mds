@@ -73,7 +73,7 @@ fh.setFormatter(formatter)
 logging.getLogger().addHandler(fh)
 
 DEBUG=False
-LOG_F=False
+LOG_F=True
 
 log = logger.get_timed_rotating_logger(
         logger_name="KMV_API",
@@ -125,7 +125,7 @@ class KmvApi(Resource):
                 i += 1
 
             if LOG_F:
-                log.info("\noutput_json : \n"+ json_str )
+                log.info("\noutput_json : \n"+ str(lt_rst))
             #raise Exception("Test")
             return lt_rst
         except Exception:
