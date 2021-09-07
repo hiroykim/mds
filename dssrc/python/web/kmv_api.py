@@ -51,7 +51,7 @@ def parse_comm(dt_pickle, data, rows):
 
     # check!!
     # 계약의 보험기간 / 납입기간 2
-    ctr_py_prd = float(data.get("ctr_py_prd",0))
+    ctr_py_prd = float(data.get("ctrPyPrd",0))
     ctr_ins_prd = float(data.get("ctrInsPrd",0))
     ret[:, curIndex], ret[:, curIndex+1] = ctr_py_prd/100., ctr_ins_prd/100.
     curIndex += 2
